@@ -1,0 +1,49 @@
+﻿@model string
+
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+
+@section scripts
+{
+<script type="text/javascript">
+    registrationModule.factory('bootstrappedData',
+        function() {
+            return{
+                resturants: @Html.Raw(Model)
+            };
+        });
+</script>
+}
+<form method="get">
+    <input type="text" name="searchTerm" />
+    <input type="submit" value="search" />
+</form>
+
+@*@foreach(var item in Model)
+{*@
+
+@*<div>
+        <h4>@item.Name</h4>
+        <div>@item.City, @item.Country</div>
+              Reviews: @item.CountOfReviews
+        <hr />
+    </div>*@
+
+<div ng-controller="ResturantViewController">
+    <div data-ng-repeat="resturant in resturants">
+        <div>{{resturant.name}}</div>
+        <div>{{resturant.city}} {{resturnat.country}}</div>
+    </div>
+</div>
+
+@*<div ng-controller="ResturantViewController">
+    <div>{{resturants}}</div>
+</div>*@
+
+
+
+@*}*@
+
