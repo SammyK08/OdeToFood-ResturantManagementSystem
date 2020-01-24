@@ -44,13 +44,11 @@ namespace OdeToFood.Controllers
             return View();
         }
 
-        public ActionResult Contact()
+        public ActionResult Random()
         {
-            ViewBag.Message = "Your contact page.";
-
             return View();
         }
-
+       
         protected override void Dispose(bool disposing)
         {
             if(_db != null){
