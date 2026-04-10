@@ -1,0 +1,63 @@
+@page "/cart"
+@inject OrderService OrderService
+@inject OrderApiClient ApiClient
+
+<PageTitle>Cart</PageTitle>
+
+<h1>Your Cart</h1>
+
+@if (!string.IsNullOrWhiteSpace(_statusMessage))
+{
+    <TelerikNotification @ref="_notification" />
+    <p class="status">@_statusMessage</p>
+}
+
+@if (!OrderService.CartItems.Any())
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    <TelerikGrid Data="@OrderService.CartItems" Pageable="false" Sortable="false">
+        <GridColumns>
+            <GridColumn Title="Item">
+                <Template Context="item">
+                    @((item as CartItem)!.FoodItem.Name)
+                </Template>
+            </GridColumn>
+            <GridColumn Field="@nameof(CartItem.Quantity)" Title="Qty" Width="80px" />
+            <GridColumn Field="@nameof(CartItem.LineTotal)" Title="Line Total" DisplayFormat="{0:C}" Width="140px" />
+        </GridColumns>
+    </TelerikGrid>
+
+    <h3>Total: @OrderService.Total.ToString("C")</h3>
+    <div class="cart-actions">
+        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" OnClick="PlaceOrder">Place Order</TelerikButton>
+        <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Error" OnClick="OrderService.ClearCart">Clear Cart</TelerikButton>
+    </div>
+}
+
+@code {
+    private string? _statusMessage;
+    private TelerikNotification? _notification;
+
+    private async Task PlaceOrder()
+    {
+        var result = await ApiClient.SubmitOrderAsync(OrderService.CartItems);
+        _statusMessage = result is null
+            ? "Failed to place your order."
+            : $"Order #{result.OrderId} submitted for {result.Total:C}.";
+
+        if (result is not null)
+        {
+            OrderService.ClearCart();
+        }
+
+        _notification?.Show(new NotificationModel
+        {
+            Text = _statusMessage,
+            ThemeColor = result is null ? ThemeConstants.Notification.ThemeColor.Error : ThemeConstants.Notification.ThemeColor.Success,
+            CloseAfter = 3000
+        });
+    }
+}
