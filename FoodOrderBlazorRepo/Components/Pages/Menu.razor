@@ -1,0 +1,47 @@
+@page "/menu"
+@inject OrderService OrderService
+@inject OrderApiClient ApiClient
+
+<PageTitle>Menu</PageTitle>
+
+<h1>Menu</h1>
+
+@if (_loading)
+{
+    <p>Loading menu...</p>
+}
+else
+{
+    <TelerikGrid Data="@_menuItems" Pageable="true" PageSize="6" Sortable="true" Height="420px">
+        <GridColumns>
+            <GridColumn Field="@nameof(FoodItem.Name)" Title="Item" />
+            <GridColumn Field="@nameof(FoodItem.Description)" Title="Description" />
+            <GridColumn Field="@nameof(FoodItem.Price)" Title="Price" DisplayFormat="{0:C}" />
+            <GridColumn Title="Actions" Width="130px">
+                <Template Context="item">
+                    <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Success"
+                                   Size="@ThemeConstants.Button.Size.Small"
+                                   OnClick="@(() => AddToCart((FoodItem)item))">
+                        Add
+                    </TelerikButton>
+                </Template>
+            </GridColumn>
+        </GridColumns>
+    </TelerikGrid>
+}
+
+@code {
+    private bool _loading = true;
+    private IReadOnlyList<FoodItem> _menuItems = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _menuItems = await ApiClient.GetMenuAsync();
+        _loading = false;
+    }
+
+    private void AddToCart(FoodItem item)
+    {
+        OrderService.AddItem(item);
+    }
+}
